@@ -86,3 +86,5 @@ end
 function m.setTrackFxParamValue(oTrack, nFxId, nParamId, nValue)
     reaper.TrackFX_SetParam(oTrack, nFxId, nParamId, nValue)
 end
+
+return m
