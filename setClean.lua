@@ -1,10 +1,12 @@
 local path = ({reaper.get_action_context()})[2]:match('^.+[\\//]')
 local lr = dofile(path .. 'liverigFunctions.lua')
+local songs = dofile(path .. 'songs.lua')
 
-lr.muteTrackByName("drive", true)
-lr.muteTrackByName("solo", true)
-lr.muteTrackByName("ext", true)
-lr.muteTrackByName("fx loop", true)
+local song = songs.getSongByFirstTrackTitle()
 
-lr.muteTrackByName("clean", false)
+if song ~= nil then
+    song:setClean()
+    song:setTempo()
+end
 
+lr.setClean()

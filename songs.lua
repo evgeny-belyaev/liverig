@@ -1,72 +1,64 @@
+function loadLibrary(name)
+    local path = ({reaper.get_action_context()})[2]:match('^.+[\\//]')
+    return dofile(path .. name)
+end
+
+local lr = loadLibrary('liverigFunctions.lua')
+
 local m = {}
 
-m.MakeMeWannaDie = {}
+m.SONG_MAKE_ME_WANNA_DIE = "Make Me Wanna Die"
+m.SONG_YOU_KNOW_MY_NAME = "You know my name"
+m.SONG_PLUGIN_BABY = "Plugin baby"
+m.SONG_I_GET_OFF = "I get off"
+m.SONG_FORSAKEN = "Forsaken"
+m.SONG_GOODNIGHT_MOON = "Goodnight moon"
 
-function m.MakeMeWannaDie:new()
-    local obj = {}
+-- Songs
 
-    local mesa = m.getTrackByName("Mesa Tripple Rectifier")
-    local ampFxId = 0
-    local fxEqReduceHighFxId = 1
-
-    local paramChannel = 0
-    local paramCompressor = 1
-    local paramDelayMix = 2
-    local paramRoomRMix = 3
-    local paramHallRMix = 4
-
-    -- Unmute the amp
-    m.muteTrack(mesa, false)
-
-    function setAmpParam(fxId, value)
-        m.setTrackFxParamValue(mesa, ampFxId, fxId, value)
-    end
-
-    function obj:setClean()
-        setAmpParam(paramChannel, MESA_TRIPPLE_RECTIFIER_CH1)  -- Channel
-        setAmpParam(paramCompressor, FX_PARAM_BYPASS_ON)       -- Compressor bypass
-        setAmpParam(paramDelayMix, 0)                          -- Delay mix
-        setAmpParam(paramRoomRMix, 0.1)                        -- Room reverb mix
-        setAmpParam(paramHallRMix, 0)                          -- Hall reverb mix
-
-        m.enableTrackFxById(mesa, fxEqReduceHighFxId, true)    -- Eq: Reduce high freq
-    end
-
-    function obj:setDrive()
-        setAmpParam(paramChannel, MESA_TRIPPLE_RECTIFIER_CH2)  -- Channel
-        setAmpParam(paramCompressor, FX_PARAM_BYPASS_ON)       -- Compressor bypass
-        setAmpParam(paramDelayMix, 0)                          -- Delay mix
-        setAmpParam(paramRoomRMix, 0.1)                        -- Room reverb mix
-        setAmpParam(paramHallRMix, 0)                          -- Hall reverb mix
-
-        m.enableTrackFxById(mesa, fxEqReduceHighFxId, false)   -- Eq: Reduce high freq
-    end
-
-    function obj:setSolo()
-        setAmpParam(paramChannel, MESA_TRIPPLE_RECTIFIER_CH2)  -- Channel
-        setAmpParam(paramCompressor, FX_PARAM_BYPASS_OFF)      -- Compressor bypass
-        setAmpParam(paramDelayMix, 0.1)                        -- Delay mix
-        setAmpParam(paramRoomRMix, 0)                          -- Room reverb mix
-        setAmpParam(paramHallRMix, 0.1)                        -- Hall reverb mix
-
-        m.enableTrackFxById(mesa, fxEqReduceHighFxId, false)   -- Eq: Reduce high freq
-    end
-
-    function obj:setExt()
-        self:setClean()
-    end
-
-    setmetatable(obj, self)
-    self.__index = self; return obj
+function loadSong(sScript)
+    return loadLibrary(sScript).Song:new()
 end
 
 function m.getSongByFirstTrackTitle()
-    local title = m.getTrackName(0)
+    local title = lr.getTrackName(0)
 
-    if title == "Make Me Wanna Die" then
-        return m.MakeMeWannaDie:new()
+    if title == m.SONG_MAKE_ME_WANNA_DIE then
+        return loadSong('song_MakeMeWannaDie.lua')
     end
+
+    if title == m.SONG_YOU_KNOW_MY_NAME then
+        return loadSong('song_YouKnowMyName.lua')
+    end
+
+    if title == m.SONG_PLUGIN_BABY then
+        return loadSong("song_PlugInBaby.lua")
+    end
+
+    if title == m.SONG_I_GET_OFF then
+        return loadSong("song_IGetOff.lua")
+    end
+
+    if title == m.SONG_FORSAKEN then
+        return loadSong("song_Forsaken.lua")
+    end
+
+    if title == m.SONG_GOODNIGHT_MOON then
+        return loadSong("song_GoodnightMoon.lua")
+    end
+
+    return nil
 end
 
+function m.setSong(sSong)
+    lr.setTrackName(0, sSong)
+
+    local song = m.getSongByFirstTrackTitle()
+
+    song:setClean() -- Set clean sound
+    song:setTempo() -- Set tempo
+
+    lr.setClean()   -- Enable clean channel
+end
 
 return m
